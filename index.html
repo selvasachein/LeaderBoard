@@ -1,0 +1,631 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CS3414 - Student Rankings</title>
+
+<style>
+:root {
+    --navy: #111827;
+    --gold: #facc15;
+    --red: #dc2626;
+    --text: #1f2937;
+    --muted: #64748b;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    min-height: 100vh;
+    padding: 25px 15px;
+
+    background: linear-gradient(
+        135deg,
+        #dc2626,
+        #facc15,
+        #dc2626,
+        #f59e0b,
+        #b91c1c
+    );
+
+    background-size: 400% 400%;
+    animation: gradientMove 12s ease infinite;
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.container {
+    max-width: 1250px;
+    margin: auto;
+    background: rgba(255,255,255,0.97);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+/* HEADER */
+
+header {
+    background: linear-gradient(135deg,#111827,#273449);
+    padding: 30px 20px;
+    text-align: center;
+    border-bottom: 5px solid var(--gold);
+}
+
+.logo img {
+    max-width: 90%;
+    max-height: 105px;
+    object-fit: contain;
+    margin-bottom: 20px;
+}
+
+.heading {
+    color: var(--gold);
+    font-size: clamp(19px,3vw,32px);
+    font-weight: 900;
+    letter-spacing: 1px;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.subheading {
+    color: #e5e7eb;
+    margin-top: 10px;
+    font-size: 14px;
+    letter-spacing: 2px;
+}
+
+/* TOP SUMMARY */
+
+.summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 22px 25px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.summary-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.student-count {
+    background: #111827;
+    color: #facc15;
+    padding: 10px 18px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+/* SEARCH */
+
+.search-area {
+    padding: 18px 25px;
+    background: white;
+}
+
+.search-area input {
+    width: 100%;
+    padding: 15px 18px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    outline: none;
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+.search-area input:focus {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 4px rgba(220,38,38,0.1);
+}
+
+/* TABLE */
+
+.table-wrapper {
+    overflow-x: auto;
+    padding: 0 20px 25px;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 7px;
+}
+
+thead th {
+    background: #1e293b;
+    color: white;
+    padding: 17px 20px;
+    text-align: left;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+thead th:first-child {
+    border-radius: 10px 0 0 10px;
+    text-align: center;
+}
+
+thead th:last-child {
+    border-radius: 0 10px 10px 0;
+    text-align: right;
+}
+
+tbody tr {
+    background: #f8fafc;
+    transition: 0.25s;
+}
+
+tbody tr:hover {
+    transform: scale(1.008);
+    background: #fef3c7;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.07);
+}
+
+tbody td {
+    padding: 15px 20px;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 14px;
+}
+
+tbody td:first-child {
+    border-left: 1px solid #e5e7eb;
+    border-radius: 10px 0 0 10px;
+    text-align: center;
+}
+
+tbody td:last-child {
+    border-right: 1px solid #e5e7eb;
+    border-radius: 0 10px 10px 0;
+    text-align: right;
+}
+
+.ref-code {
+    font-family: Consolas, monospace;
+    font-weight: 700;
+    color: #475569;
+}
+
+.student-name {
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.marks {
+    display: inline-block;
+    background: #e2e8f0;
+    padding: 7px 13px;
+    border-radius: 8px;
+    font-weight: 800;
+    color: #111827;
+}
+
+/* TOP THREE */
+
+.rank-1 {
+    background: linear-gradient(90deg,#fef08a,#fde047) !important;
+    font-weight: 800;
+}
+
+.rank-2 {
+    background: linear-gradient(90deg,#f1f5f9,#cbd5e1) !important;
+    font-weight: 800;
+}
+
+.rank-3 {
+    background: linear-gradient(90deg,#fed7aa,#fdba74) !important;
+    font-weight: 800;
+}
+
+.rank-1 td:first-child { border-left: 6px solid #eab308; }
+.rank-2 td:first-child { border-left: 6px solid #94a3b8; }
+.rank-3 td:first-child { border-left: 6px solid #d97706; }
+
+.rank-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.8);
+    padding: 7px 12px;
+    border-radius: 25px;
+    font-weight: 900;
+    color: #111827;
+    white-space: nowrap;
+}
+
+.medal {
+    font-size: 20px;
+    vertical-align: middle;
+}
+
+/* FOOTER */
+
+footer {
+    background: #111827;
+    color: #cbd5e1;
+    text-align: center;
+    padding: 23px 15px;
+    border-top: 4px solid #facc15;
+    font-size: 14px;
+}
+
+footer a {
+    color: #facc15;
+    text-decoration: none;
+    font-weight: 800;
+    transition: 0.3s;
+}
+
+footer a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+/* MOBILE */
+
+@media(max-width:640px) {
+    body { padding: 8px; }
+
+    header { padding: 23px 12px; }
+
+    .summary { padding: 17px; }
+
+    .search-area { padding: 15px; }
+
+    .table-wrapper { padding: 0 10px 20px; }
+
+    tbody td, thead th {
+        padding: 12px 10px;
+        font-size: 12px;
+    }
+
+    .heading { font-size: 18px; }
+}
+
+@media(prefers-reduced-motion:reduce) {
+    body { animation: none; }
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <div class="logo">
+            <img src="logo.png"
+                 alt="Institution Logo"
+                 onerror="this.style.display='none'">
+        </div>
+
+        <h1 class="heading">
+            CS3414 - FUNDAMENTALS OF WEB APPLICATION DEVELOPMENT
+            RANKINGS
+        </h1>
+
+        <p class="subheading">STUDENT PERFORMANCE LEADERBOARD</p>
+    </header>
+
+    <section class="summary">
+        <div class="summary-title">🏆 Academic Rankings</div>
+        <span class="student-count" id="studentCount">
+            Total Students: 164
+        </span>
+    </section>
+
+    <div class="search-area">
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="🔍 Search by Reference Number or Student Name..."
+            aria-label="Search students"
+        >
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Reference Number</th>
+                    <th>Student Name</th>
+                    <th>Total Marks</th>
+                </tr>
+            </thead>
+
+            <tbody id="rankingBody"></tbody>
+        </table>
+    </div>
+
+    <footer>
+        Designed & Developed by
+        <a href="https://www.linkedin.com/in/dr-selvakumar-r-561851425/"
+           target="_blank"
+           rel="noopener noreferrer">
+            Dr.R.Selvakumar ↗
+        </a>
+    </footer>
+
+</div>
+
+<script>
+
+/* COMPLETE STUDENT DATA */
+
+const studentData = [
+    { ref: "26015690", name: "GOPIKA SRI V", marks: 417.35 },
+    { ref: "26008892", name: "ANLI JOVITA C", marks: 414.27 },
+    { ref: "26015813", name: "PRADEEP S", marks: 408.41 },
+    { ref: "26009783", name: "YOGESH LAKSHMAN P", marks: 406.35 },
+    { ref: "26008136", name: "DEEPSHIKA S", marks: 405.84 },
+    { ref: "26018999", name: "VIJAYAN M", marks: 404.00 },
+    { ref: "26010565", name: "MIRA ARAVINDH K L", marks: 402.32 },
+    { ref: "26007392", name: "MOHAMED ASLAM N", marks: 399.80 },
+    { ref: "26016280", name: "THARUN R", marks: 398.70 },
+    { ref: "26018924", name: "KIRUSH J", marks: 398.00 },
+    { ref: "26002593", name: "PRATHIKSHA.S", marks: 395.56 },
+    { ref: "26016948", name: "SUJAY PRIYAN K R", marks: 393.65 },
+    { ref: "26008317", name: "U RISHINDER", marks: 392.49 },
+    { ref: "26017697", name: "SANGAVI.A", marks: 392.06 },
+    { ref: "26018233", name: "POOJA SHREE K", marks: 389.73 },
+    { ref: "26011601", name: "SRIVARSHINI G", marks: 389.42 },
+    { ref: "26015547", name: "NETHAJI SAMARAN J", marks: 388.00 },
+    { ref: "26011394", name: "SARAVANAKUMAR S", marks: 385.36 },
+    { ref: "26018367", name: "SARAN N K", marks: 383.91 },
+    { ref: "26002614", name: "SAMUELRAJ S", marks: 382.07 },
+    { ref: "26018672", name: "KASTHURIRAM ROSHAN G", marks: 381.73 },
+    { ref: "26018790", name: "TANISHKA U.M", marks: 380.54 },
+    { ref: "26009634", name: "KARTHIKEYAN J", marks: 380.00 },
+    { ref: "26018761", name: "MARIYA ASNA K", marks: 379.77 },
+    { ref: "26018101", name: "SERA AAKASH V", marks: 378.94 },
+    { ref: "26019307", name: "THERUNAN T", marks: 378.58 },
+    { ref: "26018610", name: "SHEIK MOHAIDEEN M", marks: 378.25 },
+    { ref: "26018386", name: "K AVINASH", marks: 377.37 },
+    { ref: "26019310", name: "DINESH N", marks: 375.92 },
+    { ref: "26014342", name: "RAJAMARUTHU M", marks: 375.65 },
+    { ref: "26011027", name: "KAMALIKA S", marks: 375.61 },
+    { ref: "26012668", name: "ADRIEL DENNIS", marks: 375.03 },
+    { ref: "26013042", name: "SREENIDHI S S", marks: 373.93 },
+    { ref: "26018863", name: "HARINI R", marks: 373.37 },
+    { ref: "26018618", name: "HARI HARAN R", marks: 373.00 },
+    { ref: "26014071", name: "DEEPALAKSHMI S", marks: 372.25 },
+    { ref: "26018352", name: "RESHMA M", marks: 371.09 },
+    { ref: "26004619", name: "YAZHINIKA S", marks: 369.00 },
+    { ref: "26014356", name: "SADHANA S", marks: 367.70 },
+    { ref: "26017549", name: "PARTHIV S S", marks: 366.80 },
+    { ref: "26014806", name: "JEROFIN RENNET J", marks: 365.30 },
+    { ref: "26017366", name: "GOKUL K", marks: 365.00 },
+    { ref: "26018921", name: "BAVANA A", marks: 363.18 },
+    { ref: "26016009", name: "JAZLYNBRIONNA A", marks: 363.00 },
+    { ref: "26017022", name: "ARVIND R S", marks: 361.55 },
+    { ref: "26008403", name: "KANITHRA V E .", marks: 360.00 },
+    { ref: "26018964", name: "S.HAVANTHIKA", marks: 359.36 },
+    { ref: "26011940", name: "T.SUBAASHINEE", marks: 359.14 },
+    { ref: "26011904", name: "INDRAJEET KAR", marks: 359.00 },
+    { ref: "26019133", name: "SUBIKSHA M N", marks: 357.55 },
+    { ref: "26017472", name: "JASRA.J", marks: 355.00 },
+    { ref: "26015531", name: "LOHITASHWA S", marks: 354.00 },
+    { ref: "26018775", name: "NITHISH VM", marks: 352.93 },
+    { ref: "26018976", name: "AJAI A", marks: 352.34 },
+    { ref: "26010199", name: "ROSHINIPRIYA R", marks: 351.73 },
+    { ref: "26016698", name: "SHAMINI B", marks: 350.62 },
+    { ref: "26017320", name: "M GOGULASHARVATHAN", marks: 349.79 },
+    { ref: "26016835", name: "KIRAN M.R", marks: 348.40 },
+    { ref: "26014575", name: "ABISHEK L", marks: 346.00 },
+    { ref: "26017811", name: "K. RANJITHKUMAR", marks: 344.27 },
+    { ref: "26013211", name: "SHAIK SAUD S", marks: 343.44 },
+    { ref: "26018380", name: "HEMA M", marks: 341.95 },
+    { ref: "26014130", name: "HARINI SHREE S", marks: 341.25 },
+    { ref: "26004736", name: "M VISHAL", marks: 337.82 },
+    { ref: "26018686", name: "UMA BHARATHI P", marks: 337.54 },
+    { ref: "26014119", name: "S.SAMEER", marks: 335.00 },
+    { ref: "26011289", name: "ASWINI K. V", marks: 335.00 },
+    { ref: "26008631", name: "MAHALAKSHMI", marks: 334.07 },
+    { ref: "26019301", name: "MEGANATH G", marks: 333.02 },
+    { ref: "26019255", name: "DHIVAKAR P A", marks: 331.83 },
+    { ref: "26010229", name: "SRISANGAMESHM", marks: 324.91 },
+    { ref: "26013893", name: "JHANANI K", marks: 319.93 },
+    { ref: "26018692", name: "ASHIK BASHA A", marks: 317.74 },
+    { ref: "26001770", name: "M.AAKASH", marks: 317.63 },
+    { ref: "26000788", name: "BHARATH T", marks: 314.00 },
+    { ref: "26018791", name: "KAPIL VIKNESH K R", marks: 314.00 },
+    { ref: "26002950", name: "SANJANA SAKTHI", marks: 314.00 },
+    { ref: "26005835", name: "RAKSHANA A", marks: 312.00 },
+    { ref: "26009747", name: "NIKSHITHA M", marks: 311.32 },
+    { ref: "26012026", name: "G NITYA SREE", marks: 310.17 },
+    { ref: "26014162", name: "S SURAJKANTH", marks: 306.00 },
+    { ref: "26017589", name: "JANESH M", marks: 303.88 },
+    { ref: "26009527", name: "LAVANYA V", marks: 302.83 },
+    { ref: "26003612", name: "DEEPAK SREEMAN S", marks: 302.20 },
+    { ref: "26018300", name: "M K JEEVITH", marks: 302.00 },
+    { ref: "26019069", name: "HANNAH VASANTHI A", marks: 301.43 },
+    { ref: "26005879", name: "ELAKKYA SRI SM", marks: 300.79 },
+    { ref: "26018100", name: "KAVITHA K", marks: 295.83 },
+    { ref: "26011256", name: "JAIRUS RAPHEAL E", marks: 294.93 },
+    { ref: "26011070", name: "VIKNESH A", marks: 293.00 },
+    { ref: "26013770", name: "E.PRIYADHARSHINI", marks: 289.00 },
+    { ref: "26019371", name: "NARASIMHAN RM", marks: 288.00 },
+    { ref: "26004114", name: "ASNIN LIBIN W A", marks: 286.93 },
+    { ref: "26018146", name: "FAISAL S", marks: 286.32 },
+    { ref: "26004344", name: "MADUVANTHI M", marks: 282.40 },
+    { ref: "26001079", name: "RIVYUDHAA M", marks: 280.46 },
+    { ref: "26019408", name: "SANTHOSH KUMAR K", marks: 279.93 },
+    { ref: "26014378", name: "GOVARTHAN.P", marks: 277.00 },
+    { ref: "26018363", name: "LAKSHITHA M", marks: 276.49 },
+    { ref: "26016599", name: "SANTHOSH K", marks: 275.67 },
+    { ref: "26019434", name: "INPATAMILPRABHA U", marks: 274.49 },
+    { ref: "26017521", name: "K SUGAN KUMAR", marks: 274.14 },
+    { ref: "26015584", name: "K JAGADEEP", marks: 273.61 },
+    { ref: "26019313", name: "DHAARANI S", marks: 271.00 },
+    { ref: "26014582", name: "JAYASRI J", marks: 268.94 },
+    { ref: "26019374", name: "MADHUSREE.G", marks: 268.00 },
+    { ref: "26012661", name: "JOTHINATH S", marks: 266.78 },
+    { ref: "26004112", name: "SHENO P", marks: 265.27 },
+    { ref: "26015947", name: "HARITHA S", marks: 264.00 },
+    { ref: "26007010", name: "ROSHINII MADHUBALA", marks: 262.85 },
+    { ref: "26017252", name: "SURYA NARAYANA K R S", marks: 261.37 },
+    { ref: "26007554", name: "HARIHARAN R", marks: 260.28 },
+    { ref: "26018663", name: "ABISHEK V A", marks: 259.56 },
+    { ref: "26017907", name: "KEERTHANA S", marks: 259.00 },
+    { ref: "26018286", name: "GOKULAN S S", marks: 256.36 },
+    { ref: "26013395", name: "LAKSHANA RAMESH", marks: 254.37 },
+    { ref: "26010234", name: "PN SURYAPRAKASH", marks: 254.00 },
+    { ref: "26001739", name: "SANGAMITHRA R", marks: 253.10 },
+    { ref: "26013799", name: "SRINIVAS R", marks: 252.10 },
+    { ref: "26019043", name: "RAGAVAN S", marks: 251.35 },
+    { ref: "26009894", name: "SANJAY R", marks: 250.04 },
+    { ref: "26008707", name: "VANSIGAA NEASAN E", marks: 248.09 },
+    { ref: "26013543", name: "MUKESH M", marks: 248.03 },
+    { ref: "26019019", name: "DURGASRI N", marks: 247.00 },
+    { ref: "26019050", name: "LAKSHIKA S", marks: 246.00 },
+    { ref: "26011090", name: "M.NITHISH", marks: 244.00 },
+    { ref: "26019085", name: "SAI DHARSHINI.S", marks: 241.81 },
+    { ref: "26010324", name: "TARUTHRRA TEJJA T P", marks: 239.34 },
+    { ref: "26009918", name: "ARIYA A", marks: 238.00 },
+    { ref: "26018962", name: "NARMATHA S", marks: 237.69 },
+    { ref: "26013618", name: "KEERTHIKA.S", marks: 236.94 },
+    { ref: "26012045", name: "NANDHAKUMAR S", marks: 236.00 },
+    { ref: "26010203", name: "KANISHKA B", marks: 235.58 },
+    { ref: "26010660", name: "SABARISHWARAR S P", marks: 235.00 },
+    { ref: "26000969", name: "SELVAN MANO", marks: 234.00 },
+    { ref: "26005666", name: "HEMAVARSHA. T.K", marks: 234.00 },
+    { ref: "26019297", name: "SUDHAN P", marks: 232.72 },
+    { ref: "26018120", name: "U.MOHAMED MANSOOR", marks: 232.00 },
+    { ref: "26015225", name: "J PRATHIKSHA", marks: 224.72 },
+    { ref: "26016424", name: "ABISHEK KUMAR S", marks: 222.87 },
+    { ref: "26018043", name: "NIVASH I", marks: 217.00 },
+    { ref: "26005966", name: "RAJA SELVI G", marks: 216.00 },
+    { ref: "26018933", name: "SRI SATHIYA M", marks: 215.80 },
+    { ref: "26017171", name: "ARJUN M", marks: 214.00 },
+    { ref: "26007368", name: "BALAJI P", marks: 214.00 },
+    { ref: "26012140", name: "ADHAVAN E", marks: 212.49 },
+    { ref: "26018910", name: "DAYANITHI LOKESH L", marks: 211.00 },
+    { ref: "26017428", name: "NANDAGOPAL K K", marks: 208.00 },
+    { ref: "26019369", name: "GOKUL S P", marks: 202.00 },
+    { ref: "26019047", name: "VARSHIKA T", marks: 201.95 },
+    { ref: "26008987", name: "SRISUBIKSHA S", marks: 200.62 },
+    { ref: "26019443", name: "SHERIN LIYA", marks: 200.00 },
+    { ref: "26007418", name: "VISHVA.S", marks: 200.00 },
+    { ref: "26008446", name: "JOHN RYAN A", marks: 170.42 },
+    { ref: "26018731", name: "BAIRAVASUNDARAM A", marks: 169.09 },
+    { ref: "26007595", name: "TRILOKESH JEYANTH V", marks: 164.41 },
+    { ref: "26010711", name: "YOGESH M", marks: 156.00 },
+    { ref: "26007321", name: "M. MOHAMMED ESHAN", marks: 152.00 },
+    { ref: "26018315", name: "R G THEJESH RAAM", marks: 145.90 },
+    { ref: "26005256", name: "R DHARSINI", marks: 139.93 },
+    { ref: "26012314", name: "HARSHIV AADHITHYA A S", marks: 116.00 },
+    { ref: "26018320", name: "M.YOGESH BALA GURU", marks: 106.00 },
+    { ref: "26010850", name: "KABILAN S", marks: 104.00 },
+    { ref: "26019389", name: "JAYAKUMAR R", marks: 20.00 }
+];
+
+/* RANKING */
+
+const rankingBody = document.getElementById("rankingBody");
+const searchInput = document.getElementById("searchInput");
+const studentCount = document.getElementById("studentCount");
+
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
+
+function getRank(rank) {
+    if (rank === 1)
+        return '<span class="rank-badge"><span class="medal">🥇</span> 1st</span>';
+
+    if (rank === 2)
+        return '<span class="rank-badge"><span class="medal">🥈</span> 2nd</span>';
+
+    if (rank === 3)
+        return '<span class="rank-badge"><span class="medal">🥉</span> 3rd</span>';
+
+    return `<strong>#${rank}</strong>`;
+}
+
+function renderTable() {
+
+    const sorted = [...studentData].sort((a,b) =>
+        b.marks - a.marks
+    );
+
+    const query = searchInput.value.trim().toLowerCase();
+
+    const filtered = sorted
+        .map((student,index) => ({
+            ...student,
+            rank: index + 1
+        }))
+        .filter(student =>
+            student.ref.toLowerCase().includes(query) ||
+            student.name.toLowerCase().includes(query)
+        );
+
+    studentCount.textContent =
+        `Showing ${filtered.length} of ${studentData.length} Students`;
+
+    rankingBody.innerHTML = filtered.map(student => {
+
+        const rankClass =
+            student.rank === 1 ? "rank-1" :
+            student.rank === 2 ? "rank-2" :
+            student.rank === 3 ? "rank-3" : "";
+
+        return `
+            <tr class="${rankClass}">
+                <td>${getRank(student.rank)}</td>
+                <td class="ref-code">${escapeHtml(student.ref)}</td>
+                <td class="student-name">${escapeHtml(student.name)}</td>
+                <td><span class="marks">${student.marks.toFixed(2)}</span></td>
+            </tr>
+        `;
+    }).join("");
+
+    if (filtered.length === 0) {
+        rankingBody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align:center;padding:35px;color:#64748b;">
+                    No students found.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+searchInput.addEventListener("input", renderTable);
+
+renderTable();
+
+</script>
+
+</body>
+</html>
